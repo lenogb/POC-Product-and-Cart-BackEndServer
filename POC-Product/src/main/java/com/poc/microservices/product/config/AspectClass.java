@@ -16,11 +16,11 @@ import com.poc.microservices.product.util.objectModel;
 public class AspectClass {
 	@Autowired KafkaTemplate<String, String> kafkaTemplate;
 	Long datetime = System.currentTimeMillis();
-    Timestamp timestamp = new Timestamp(datetime);
-    @Autowired objectModel objectModel;
+    	Timestamp timestamp = new Timestamp(datetime);
+    	@Autowired objectModel objectModel;
 
 	@Around(value="execution(* com.poc.microservices.product.controller.*.*(..))")
-	public void afterThrowingControllerMethods(ProceedingJoinPoint jp) {
+	public void aroundExecutionControllerMethods(ProceedingJoinPoint jp) {
 		try {
 			Object[] arguments= jp.getArgs();
 			objectModel.setAguments(arguments);
