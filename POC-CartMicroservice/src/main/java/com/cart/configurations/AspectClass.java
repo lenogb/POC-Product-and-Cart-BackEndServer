@@ -10,9 +10,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import com.cart.dto.ExceptionResponse;
 import com.cart.enums.RequestError;
 import com.cart.exception.CartException;
-import com.cart.model.ExceptionResponse;
 
 @Aspect
 @Configuration

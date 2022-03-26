@@ -2,11 +2,11 @@ package com.cart.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.cart.dto.RequestModel;
 import com.cart.enums.RequestError;
 import com.cart.exception.CartException;
 import com.cart.mapper.CartMapper;
 import com.cart.model.Product;
-import com.cart.model.RequestModel;
 
 
 public abstract class CartService {
@@ -89,7 +89,7 @@ public abstract class CartService {
 			if(mapper.checkProductExistence(cartId, productId)<=0) {
 				throw new CartException(
 						RequestError.NOTFOUND,
-						errorForInput+"Product "+productId
+						errorForInput+"Product "+productId+" | Product specified could not be found under the cart specified"
 						);
 			}
 		}

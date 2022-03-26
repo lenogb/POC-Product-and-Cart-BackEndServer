@@ -9,15 +9,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 
 import com.product.domain.Product;
+import com.product.dto.ExceptionStatusModel;
 import com.product.enums.Errors;
 import com.product.exception.ProductException;
-import com.product.model.HttpstatusModel;
 import com.product.repository.ProductRepository;
 
 public abstract class ProductService {
 	
 	@Autowired ProductRepository repository;
-	@Autowired HttpstatusModel validationResult;
+	@Autowired ExceptionStatusModel validationResult;
 	@Autowired String errorForInput;
 	
 	//Methods to be implemented

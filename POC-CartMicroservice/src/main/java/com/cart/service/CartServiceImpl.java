@@ -1,13 +1,15 @@
 package com.cart.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 import org.springframework.stereotype.Service;
 
+import com.cart.dto.ProductQuantity;
+import com.cart.dto.RequestModel;
 import com.cart.model.Cartitem;
 import com.cart.model.Product;
-import com.cart.model.RequestModel;
 
 @Service
 public class CartServiceImpl extends CartService{
@@ -140,15 +142,21 @@ public class CartServiceImpl extends CartService{
 	
 	@Override
 	public Object checkOut(Long cartId) {
+		//CHECKING ERRORS
 		checkCartExistence(cartId);
+		
+		//IF ERRORS PROCEED
 		List<Cartitem> items = mapper.findAll(cartId);
+		List<ProductQuantity> products = new ArrayList<>();
 		if(items.isEmpty()) 
-			return listAllItems(cartId);
+			return items;
 		items.forEach(item ->{
+			products.add(new ProductQuantity(item.getProductId(), item.getQuantity(), item.getSubTotal()));
 			//For checking out the items of this cart , each item should be deleted
-			deleteItem(cartId, item.getProductId());
+			mapper.delete(cartId, item.getProductId());
 		});
-		return listAllItems(cartId);
+		
+		return products;
 	}
 	
 	

@@ -11,16 +11,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
 
+import com.product.dto.ExceptionStatusModel;
 import com.product.enums.Errors;
 import com.product.exception.ProductException;
-import com.product.model.HttpstatusModel;
 
 
 @Aspect
 @Configuration
 public class AspectClass {
 
-    @Autowired HttpstatusModel status;
+    @Autowired ExceptionStatusModel status;
     @Autowired KafkaTemplate<String, String> kafkaTemplate;
     
     String topic=	"PM_activityLogs";

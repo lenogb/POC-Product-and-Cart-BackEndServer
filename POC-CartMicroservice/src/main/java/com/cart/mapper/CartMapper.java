@@ -10,9 +10,9 @@ import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.SelectKey;
 import org.apache.ibatis.annotations.Update;
 
+import com.cart.dto.RequestModel;
 import com.cart.model.Cartitem;
 import com.cart.model.Product;
-import com.cart.model.RequestModel;
 
 @Mapper
 public interface CartMapper {

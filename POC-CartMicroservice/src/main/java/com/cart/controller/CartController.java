@@ -1,5 +1,7 @@
 package com.cart.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,11 +14,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.cart.model.RequestModel;
+import com.cart.dto.CheckOut;
+import com.cart.dto.ProductQuantity;
+import com.cart.dto.RequestModel;
 import com.cart.service.CartServiceImpl;
 
 @RestController
-@RequestMapping("version1/cart")
+@RequestMapping("api/v1/cart")
 public class CartController {
 
 
@@ -48,9 +52,12 @@ public class CartController {
     	return new ResponseEntity<>(service.updateItemOnTheCart(request), HttpStatus.OK);
     }
     
-    @DeleteMapping("check-out/{id}")
-    public ResponseEntity<Object> checkOut(@PathVariable("id") Long cartId) {
-    	return new ResponseEntity<>(service.checkOut(cartId), HttpStatus.OK);
+    @SuppressWarnings("unchecked")
+	@DeleteMapping("check-out")
+    public ResponseEntity<Object> checkOut(@RequestBody CheckOut request) {
+    	Object products = service.checkOut(request.getCartId());
+    	request.setProducts((List<ProductQuantity>) products);
+    	return new ResponseEntity<>(request, HttpStatus.OK);
     }
     
 
