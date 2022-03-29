@@ -12,7 +12,6 @@ import org.apache.ibatis.annotations.Update;
 
 import com.cart.model.Cartitem;
 import com.cart.model.Product;
-import com.cart.model.RequestModel;
 
 @Mapper
 public interface CartMapper {
@@ -47,7 +46,7 @@ public interface CartMapper {
 	int updateCart(Cartitem cart);
 
     @Select("Select * from Cartitem where productId=#{productId} AND cartId=#{cartId}")
-	Cartitem getCartItemByProduct(RequestModel request);
+	Cartitem getCartItemByProduct(Long cartId, Long productId);
     
     @Delete("delete from Cartitem where productId=#{productId} AND cartId=#{cartId}")
     int delete(Long cartId, Long productId);

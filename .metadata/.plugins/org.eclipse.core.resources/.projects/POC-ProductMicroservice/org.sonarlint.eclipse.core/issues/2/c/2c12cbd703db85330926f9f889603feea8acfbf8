@@ -1,0 +1,13 @@
+
+[
+java:S5411h"*Use the primitive boolean expression here.(Ì¿÷äþÿÿÿÿH§RMINORZ
+CODE_SMELL
+h
+java:S2589h"7Remove this expression which always evaluates to "true"(Ì¿÷äþÿÿÿÿHªRMAJORZ
+CODE_SMELL
+[
+java:S5411c"*Use the primitive boolean expression here.(Ñ€ÀÃýÿÿÿÿH¤RMINORZ
+CODE_SMELL
+[
+java:S5411^"*Use the primitive boolean expression here.(Ìí¯•øÿÿÿÿH¡RMINORZ
+CODE_SMELL

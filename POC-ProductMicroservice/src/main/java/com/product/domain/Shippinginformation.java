@@ -24,7 +24,6 @@ import lombok.NoArgsConstructor;
 @Entity
 public class Shippinginformation {
 
-	//try muna kung pag nag update , anong itothrow nyang exception
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long shippingid;

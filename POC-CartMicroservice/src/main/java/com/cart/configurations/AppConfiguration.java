@@ -2,11 +2,9 @@ package com.cart.configurations;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
-public class AppConfiguration implements WebMvcConfigurer{
-
+public class AppConfiguration {
 
 	@Bean 
 	public String errorForInput() {

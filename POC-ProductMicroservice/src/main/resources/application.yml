@@ -2,10 +2,7 @@ server:
  port: 8888
 
 spring:
- jpa:
-  properties:
-   hibernate:
-    enable_lazy_load_no_trans: true
+ 
     
  #KAFKA
  kafka:
@@ -19,3 +16,11 @@ spring:
     url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/poc?autoReconnect=true&useSSL=false}
     username: ${MYSQL_USER:root}
     password: ${MYSQL_PASSWORD:1234}
+    
+    
+ #Actuator , exposing all endpoints
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"

@@ -1,120 +1,145 @@
 package com.cart.service;
-
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import com.cart.mapper.CartMapper;
 import com.cart.model.Cartitem;
 import com.cart.model.Product;
-import com.cart.model.RequestModel;
+import com.cartservice.grpc.Item;
+import com.cartservice.grpc.ListOfItems;
+import com.cartservice.grpc.Order;
+import com.cartservice.grpc.Request;
 
-@Service
-public class CartServiceImpl extends CartService{
+import io.grpc.stub.StreamObserver;
+import net.devh.boot.grpc.server.service.GrpcService;
 
-	//ADDING TO CART
+
+@GrpcService
+public class CartServiceImpl extends com.cartservice.grpc.CartServiceGrpc.CartServiceImplBase{
+	
+	@Autowired CartMapper mapper;
+	@Autowired Actions action;
+	
+	
 	@Override
-	public Object addToCart(RequestModel request) {
+	public void addToCart(Request request,
+	        StreamObserver<ListOfItems> responseObserver) {
+	      
+		Long productId = request.getProductId();
+		Long quantity = request.getQuantity();
+		Long cartId= request.getCartId();
 		
-		//GET THE PRODUCT
-		Product product = mapper.getProduct(request.getProductId());
-		
-		//CHECKING ERRORS
-		checkProductExistence(product); //under product table
-		checkIfParseable(request.getQuantity());
-		checkStocks(product);
-		checkQuantity(Long.parseLong(request.getQuantity()), product);
-		
-		//BOOKING THE PRODUCT
-		product.setStocks(product.getStocks()-Long.parseLong(request.getQuantity()));	//lessening the stocks by the item's quantity
-		mapper.updateProductStocks(product.getStocks(), product.getProductId()); //update the product's stocks
-		
-		
-		Cartitem cart = new Cartitem(
-				request.getProductId(),
-				Long.parseLong(request.getQuantity()),
-				product.getPrice()*Long.parseLong(request.getQuantity()),
-				request.getCartId()
-				);
-		
-		
-		//CHECK IF PRODUCT IS ALREADY EXISTING UNDER THE SPECIFIED CART ID
-		int count = mapper.checkProductExistence(request.getCartId(), request.getProductId()); //under cart table
-		
-		//IF EXISTING ---> UPDATE
-		if(count>0) {
-			Cartitem item = mapper.getCartItemByProduct(request);
-			item.setQuantity(cart.getQuantity()+item.getQuantity());
-			item.setSubTotal(cart.getSubTotal()+item.getSubTotal());
-			mapper.updateCart(item);
-			return listAllItems(request.getCartId());
-		}
-		
-		//IF NOT EXISTING ---> CREATE
-		else {
-			mapper.create(cart);
-			return listAllItems(request.getCartId());
-		}
-	}
+			//GET THE PRODUCT
+			Product product = mapper.getProduct(productId);
+			
+			//CHECKING ERRORS
+			action.checkProductExistence(product); //under product table
+			action.checkStocks(product);
+			action.checkQuantity(quantity, product);
+			
+			//BOOKING THE PRODUCT
+			//lessening the stocks by the item's quantity
+			mapper.updateProductStocks(product.getStocks()-quantity, product.getProductId()); //update the product's stocks
+			
+			
+			Cartitem cart = new Cartitem(
+					productId,
+					quantity,
+					product.getPrice()*quantity,
+					cartId
+					);
+			
+			
+			//CHECK IF PRODUCT IS ALREADY EXISTING UNDER THE SPECIFIED CART ID
+			int count = mapper.checkProductExistence(cartId, productId); //under cart table
+			
+			//IF EXISTING ---> UPDATE
+			if(count>0) {
+				Cartitem item = mapper.getCartItemByProduct(cartId, productId);
+				item.setQuantity(cart.getQuantity()+item.getQuantity());
+				item.setSubTotal(cart.getSubTotal()+item.getSubTotal());
+				mapper.updateCart(item);
+			}
+			
+			//IF NOT EXISTING ---> CREATE
+			else {
+				mapper.create(cart);
+			}
+			
+			action.getList(request, responseObserver); //returning the list
+	    }
+
 	
 	//LIST ALL ITEMS IN A PARTICULAR CART
 	@Override
-	public Object listAllItems(Long cartId) {
-		return mapper.findAll(cartId);
+	public void listAllItems(Request request,
+	        StreamObserver<ListOfItems> responseObserver) {
+		action.getList(request, responseObserver);
 	}
 	
 	
 	//DELETE A PRODUCT FROM THAT CART
 	@Override
-	public Object deleteItem(Long cartId, Long productId) {
+	public void deleteItem(Request request,
+	        StreamObserver<ListOfItems> responseObserver) {
+		//GETTING NECESSARRY VALUES
+		Long productId = request.getProductId();
+		Long cartId= request.getCartId();
+		
 		//CHECKING ERRORS
-		checkCartExistence(cartId);
-		checkProductExistence(mapper.getProduct(productId));
-		checkProductUnderCart(cartId, productId);
+		action.checkCartExistence(cartId);
+		action.checkProductExistence(mapper.getProduct(productId));
+		action.checkProductUnderCart(cartId, productId);
 		
 		//Get Necessary details
-		RequestModel request = new RequestModel(cartId, productId, null);
 		Product product = mapper.getProduct(productId);
-		Cartitem oldDetails = mapper.getCartItemByProduct(request);
+		Cartitem oldDetails = mapper.getCartItemByProduct(cartId, productId);
 		
 		//Update the product stocks before deleting the item
-		product.setStocks(product.getStocks()+oldDetails.getQuantity());
-		mapper.updateProductStocks(product.getStocks(), product.getProductId());
+		mapper.updateProductStocks(
+				product.getStocks()+oldDetails.getQuantity(), 
+				product.getProductId());
 		
 		//Delete the item
-		checkIfOperationIsSuccess(mapper.delete(cartId, productId));
+		mapper.delete(cartId, productId);
 		
 		//Return the list of items left
-		return listAllItems(cartId);
+		action.getList(request, responseObserver);
 	}
 	
 	
 
 	@Override
-	public Object updateItemOnTheCart(RequestModel request) {
-		//Check if the request's quantity of product is greater than or less than or still the same with the old quantity
+	public void updateItemOnTheCart(Request request,
+	        StreamObserver<ListOfItems> responseObserver) {
+		
+		//GETTING NECESSARRY VALUES
+		Long productId = request.getProductId();
+		Long quantity = request.getQuantity();
+		Long cartId= request.getCartId();
 		
 		//GET THE PRODUCT
-		Product product = mapper.getProduct(request.getProductId());
+		Product product = mapper.getProduct(productId);
 				
 		//CHECKING ERRORS
-		checkCartExistence(request.getCartId());
-		checkProductExistence(product);
-		checkProductUnderCart(request.getCartId(), request.getProductId());
-		checkIfParseable(request.getQuantity());
+		action.checkCartExistence(cartId);
+		action.checkProductExistence(product);
+		action.checkProductUnderCart(cartId, productId);
 		
-		Cartitem oldDetails = mapper.getCartItemByProduct(request);
+		//Check if the request's quantity of product is greater than or less than or still the same with the old quantity
+		Cartitem oldDetails = mapper.getCartItemByProduct(cartId, productId);
 		Long oldQuantity = oldDetails.getQuantity();
-		Long newQuantity = Long.parseLong(request.getQuantity());
+		Long newQuantity = quantity;
 		
 		
-		if(newQuantity>0) {
-			if(Objects.equals(newQuantity, oldQuantity)) {
-				return listAllItems(request.getCartId());
-			}
-			else if(newQuantity>oldQuantity) {
+		if(newQuantity>0 && !Objects.equals(newQuantity, oldQuantity)) {
+			
+			if(newQuantity>oldQuantity) {
 				Long difference = newQuantity-oldQuantity;
-				checkQuantity(difference, product); 
+				action.checkQuantity(difference, product); 
 				product.setStocks(product.getStocks()-difference);	
 			}
 			
@@ -123,35 +148,51 @@ public class CartServiceImpl extends CartService{
 				product.setStocks(product.getStocks()+difference);	
 			}
 			
-			checkIfOperationIsSuccess(mapper.updateProductStocks(product.getStocks(), product.getProductId())); 	//OK
+			mapper.updateProductStocks(product.getStocks(), product.getProductId()); 	//OK
 			oldDetails.setQuantity(newQuantity);
 			oldDetails.setSubTotal(newQuantity*product.getPrice());
 			
-			checkIfOperationIsSuccess(mapper.updateCart(oldDetails));
-			
-			return listAllItems(request.getCartId());
+			mapper.updateCart(oldDetails);
 		}
 		
-		//If the newQuantity requested is less than or equal to zero means customer wanted to remove the item from the cart
-		return deleteItem(request.getCartId(), request.getProductId());
+		else 
+			//If the newQuantity requested is less than or equal to zero means customer wanted to remove the item from the cart
+			mapper.delete(cartId, productId);
 		
+		
+		action.getList(request, responseObserver);		
 	}
 
 	
 	@Override
-	public Object checkOut(Long cartId) {
-		checkCartExistence(cartId);
-		List<Cartitem> items = mapper.findAll(cartId);
-		if(items.isEmpty()) 
-			return listAllItems(cartId);
-		items.forEach(item ->{
-			//For checking out the items of this cart , each item should be deleted
-			deleteItem(cartId, item.getProductId());
+	public void checkOut(Order request, StreamObserver<Order> responseObserver) {
+		
+		//CHECKING ERRORS
+		action.checkCartExistence(request.getCartId());
+		
+		//IF THERES NO ERRORS, PROCEED
+		List<Item> lists = new ArrayList<>();
+		mapper.findAll(request.getCartId()).forEach(cartitem->{
+			lists.add(Item.newBuilder()
+					.setProductId(cartitem.getProductId())
+					.setQuantity(cartitem.getQuantity())
+					.setSubTotal(cartitem.getSubTotal())
+					.build());
 		});
-		return listAllItems(cartId);
+		
+		Order response = Order.newBuilder()
+				.setCartId(request.getCartId())
+				.setCourier(request.getCourier())
+				.addAllItems(lists)
+				.build();
+		
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+        
+        //IF FETCHED LISTS IS NOT EMPTY, REMOVE ALL PRODUCTS FROM THE SPECIFIED CART
+      		if(!lists.isEmpty())
+      			lists.forEach(item->{
+      				mapper.delete(request.getCartId(), item.getProductId());
+      			});
 	}
-	
-	
-	
-	
 }

@@ -2,21 +2,18 @@ package com.product.service;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.product.domain.Cartitem;
 import com.product.domain.Orderdetail;
-import com.product.domain.Product;
 import com.product.domain.Shippinginformation;
-import com.product.dto.OrderRequest;
+import com.product.dto.CheckOutRequest;
+import com.product.dto.ProductQuantity;
 import com.product.enums.ShippingStatus;
 import com.product.repository.OrderRepository;
-import com.product.util.KeyValue;
 
 
 @Service
@@ -28,17 +25,18 @@ public class OrderServiceImpl{
 	@Autowired ModelMapper mapper;
 
 	
-	public KeyValue createOrder(OrderRequest request) {
+	public Orderdetail createOrder(CheckOutRequest request) {
 		
 		Orderdetail orderdetails= new Orderdetail();
 		Shippinginformation shipping = new Shippinginformation();
+		
 		Double total = 0d;
-		List<Cartitem> allItems = repo.getAllItems(request.getCartId());
-		for(Cartitem item: allItems) {
-			Product product = productService.getProduct(item.getProductId());
-			total+=(product.getPrice()*item.getQuantity());
+		for(ProductQuantity product : request.getProducts()) {
+			total=+product.getSubTotal();
 		}
-		shipping.setCourier(request.getShippingCourier());
+		
+		
+		shipping.setCourier(request.getCourier());
 		shipping.setTrackingNumber(randomize(10l));
 		shipping.setStatus(ShippingStatus.TOSHIP);
 		
@@ -50,9 +48,8 @@ public class OrderServiceImpl{
 				(Shippinginformation) repo.save(shipping));
 		orderdetails.setCartId(request.getCartId());
 		orderdetails.setTotal(total);
-		repo.save(orderdetails);
 		
-		return new KeyValue(orderdetails,allItems);
+		return (Orderdetail) repo.save(orderdetails);
 	}
 
 	

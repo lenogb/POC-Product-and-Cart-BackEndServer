@@ -12,7 +12,6 @@ import lombok.NoArgsConstructor;
 @Component
 public class ItemResponse {
 
-    private Long itemId;
 	private String productCode;	
 	private String productName;
 	private Double productPrice;
@@ -21,7 +20,7 @@ public class ItemResponse {
 	
 	@Override
 	public String toString() {
-		return "(itemId=" + itemId + ", productCode=" + productCode + ", productName=" + productName
+		return "(productCode=" + productCode + ", productName=" + productName
 				+ ", productPrice=" + productPrice + ", quantity=" + quantity + ", subTotal=" + subTotal+")";
 	}
 }

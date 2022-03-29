@@ -19,18 +19,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.product.domain.Product;
+import com.product.dto.ExceptionStatusModel;
 import com.product.dto.ProductRequest;
 import com.product.dto.ProductResponse;
-import com.product.model.HttpstatusModel;
 import com.product.service.ProductServiceImpl;
 
 @RestController
-@RequestMapping("version1/product")
+@RequestMapping("api/v1/product")
 public class ProductController {
 
 	@Autowired ProductServiceImpl service;
 	@Autowired ModelMapper mapper;
-	@Autowired HttpstatusModel status;
+	@Autowired ExceptionStatusModel status;
 	@Autowired String errorForInput;
 	
 	@PostMapping

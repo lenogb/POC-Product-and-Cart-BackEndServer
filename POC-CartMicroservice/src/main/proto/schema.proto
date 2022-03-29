@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package com.cartgateway.grpc.compiled;
+
+option java_multiple_files = true;
+option java_package = "com.cartservice.grpc";
+option java_outer_classname = "GrpcProto";
+
+message Order {
+    int64 cartId = 1;
+    repeated Item items=2;
+    string courier=3;
+}
+
+message Item{
+    int64 productId=1;
+    int64 quantity=2;
+    double subTotal=3;
+}
+
+message Request {
+	int64 cartId=1;
+	int64 productId=2;
+	int64 quantity=3;
+}
+
+message ListOfItems{
+    repeated Item items=1;
+}
+
+service CartService {
+    rpc addToCart (Request) returns (ListOfItems) {}
+    rpc listAllItems (Request) returns (ListOfItems) {}
+    rpc deleteItem (Request) returns (ListOfItems) {}
+    rpc updateItemOnTheCart (Request) returns (ListOfItems) {}
+    rpc checkOut (Order) returns (Order) {}
+}
