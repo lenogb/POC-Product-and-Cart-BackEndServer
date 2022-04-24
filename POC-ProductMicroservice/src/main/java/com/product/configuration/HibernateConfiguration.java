@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableTransactionManagement
 public class HibernateConfiguration {
 	
-	
 	@Value("com.mysql.cj.jdbc.Driver")
 	private String driver;
  
@@ -31,7 +30,7 @@ public class HibernateConfiguration {
 	@Value("org.hibernate.dialect.MySQL5InnoDBDialect")
 	private String dialect;
  
-	@Value("true")
+	@Value("false")
 	private String showsql;
  
 	@Value("update")

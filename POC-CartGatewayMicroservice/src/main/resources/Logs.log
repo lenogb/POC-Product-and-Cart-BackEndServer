@@ -1,0 +1,10 @@
+2022-04-24 12:26:52.962  INFO 14052 --- [main] o.s.s.web.DefaultSecurityFilterChain     : Will not secure any request
+2022-04-24 12:26:55.392  INFO 14052 --- [main] n.d.b.g.c.a.GrpcClientAutoConfiguration  : Detected grpc-netty-shaded: Creating ShadedNettyChannelFactory + InProcessChannelFactory
+2022-04-24 12:26:55.976  INFO 14052 --- [main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 14 endpoint(s) beneath base path '/actuator'
+2022-04-24 12:26:56.117  INFO 14052 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8889 (http) with context path '/api/v1'
+2022-04-24 12:26:56.157  INFO 14052 --- [main] .c.PocCartGatewayMicroserviceApplication : Started PocCartGatewayMicroserviceApplication in 11.949 seconds (JVM running for 14.225)
+2022-04-24 12:26:58.426  INFO 14052 --- [RMI TCP Connection(1)-127.0.0.1] o.a.c.c.C.[.[localhost].[/api/v1]        : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2022-04-24 12:26:58.427  INFO 14052 --- [RMI TCP Connection(1)-127.0.0.1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2022-04-24 12:26:58.431  INFO 14052 --- [RMI TCP Connection(1)-127.0.0.1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 3 ms
+2022-04-24 12:37:50.053  INFO 14052 --- [http-nio-8889-exec-1] com.cartgateway.logger.GatewayLogger     : [ACTIVITY] addToCart| Request Inputs: [RequestInfo(productId=99, quantity=10), SecurityContextHolderAwareRequestWrapper[ org.springframework.security.web.header.HeaderWriterFilter$HeaderWriterRequest@2f4a4f1b]]
+2022-04-24 12:37:50.582  INFO 14052 --- [http-nio-8889-exec-1] com.cartgateway.logger.GatewayLogger     : class io.grpc.StatusRuntimeException NOT_FOUND: Requesting for a product that could not be found- Requesting for a Product that could not be Found

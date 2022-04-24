@@ -4,9 +4,11 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
@@ -22,22 +24,23 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Table(name="shippinginformation")
 public class Shippinginformation {
 
-	//try muna kung pag nag update , anong itothrow nyang exception
 	@Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long shippingid;
 	
-	@Column(updatable = false)
-	private Long trackingNumber;	//randomized your own, within the logic and should be 10 digits
+	@Column
+	private String trackingNumber;	//randomized your own, within the logic and should be 10 digits
 	
-	@Column(updatable = false)
+	@Column
 	private String courier;  //Company that delivers.
 	
+	@Enumerated
 	private ShippingStatus status; 
 	
-	@Column(updatable = false)
+	@Column
 	private String eta; //Estimated Time of Arrival	//should be 3 days from the day of order creation
 	
 	@CreationTimestamp

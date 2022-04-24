@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfigurat
 @SpringBootApplication(exclude = HibernateJpaAutoConfiguration.class)
 public class PocProductMicroserviceApplication {
 
+	
 	public static void main(String[] args) {
 		SpringApplication.run(PocProductMicroserviceApplication.class, args);
 	}

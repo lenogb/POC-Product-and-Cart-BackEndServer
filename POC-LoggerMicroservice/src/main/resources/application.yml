@@ -11,12 +11,24 @@ spring:
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
 
   data:
-    
-#        
-        
     mongodb:
-      uri: mongodb://${MONGODB_USER:username}:${MONGODB_PASSWORD:password}@${MONGODB_HOST:localhost}:${MONGODB_PORT:27018}/${MONGODB_DATABASE:poc_logs}?authSource=admin
-#      authentication-database: admin
-#      host: ${MONGODB_HOST:localhost}
-#      port: ${MONGODB_PORT:27017}
-#      database: ${MONGODB_DATABASE:poc_logs}
+#      uri: mongodb://${MONGODB_USER:username}:${MONGODB_PASSWORD:password}@${MONGODB_HOST:localhost}:${MONGODB_PORT:27018}/${MONGODB_DATABASE:poc_logs}?authSource=admin
+      uri: mongodb://localhost:27017/poc?ssl=false
+      
+      
+    #Actuator , exposing all endpoints
+#management:
+#  endpoints:
+#    web:
+#      exposure:
+#        include: "*"
+
+#LOGGING PROPERTIES
+# Empty this property to disable console logging
+logging:
+  pattern:
+    console: 
+
+# Specify the path to the main log file so you will still have your logs somewhere
+  file:
+    name: ./src/main/resources/Logs.log

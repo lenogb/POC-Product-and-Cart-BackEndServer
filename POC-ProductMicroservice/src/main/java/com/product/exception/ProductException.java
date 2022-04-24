@@ -2,7 +2,7 @@ package com.product.exception;
 
 import org.springframework.http.HttpStatus;
 
-import com.product.enums.Errors;
+import com.product.enums.InputViolation;
 
 import lombok.Getter;
 
@@ -11,9 +11,9 @@ import lombok.Getter;
 public class ProductException extends RuntimeException{
 
 	private final HttpStatus apistatus;
-	private final Errors errorfound;
+	private final InputViolation errorfound;
 		
-	public ProductException(HttpStatus apistatus,Errors errorfound,Object debugmessage) {
+	public ProductException(HttpStatus apistatus,InputViolation errorfound,Object debugmessage) {
 		super((String) debugmessage);
 		this.apistatus=apistatus;
 		this.errorfound=errorfound;

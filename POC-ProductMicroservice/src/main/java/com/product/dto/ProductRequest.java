@@ -15,6 +15,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Component
 public class ProductRequest {
+	
 	@NotEmpty(message="Empty Input ---- Field: Category")
 	private String category;
 	@NotEmpty(message="Empty Input ---- Field: Name")
@@ -24,13 +25,14 @@ public class ProductRequest {
 	@NotEmpty(message="Empty Input ---- Field: Description")
 	private String description;
 	@NotNull(message="Empty Input ---- Field: Price")
-	private String price;
+	private Double price;
 	@NotNull(message="Empty Input ---- Field: Stock")
-	private String stocks;
+	private Long stocks;
 	
 	@Override
 	public String toString() {
-		return "(category=" + category + ", name=" + name + ", code=" + code + ", description=" + description
-				+ ", price=" + price + ", stocks=" + stocks +")";
+		return "ProductRequest [category=" + category + ", name=" + name + ", code=" + code + ", description="
+				+ description + ", price=" + price + ", stocks=" + stocks + "]";
 	}
+	
 }

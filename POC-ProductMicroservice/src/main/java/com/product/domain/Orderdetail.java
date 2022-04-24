@@ -9,6 +9,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
+import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
@@ -22,12 +23,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Table(name="orderdetail")
 public class Orderdetail {
 
 	@Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long orderId;
-	private Long cartId;	//CUSTOMER ID
+	private String consumer;	
 	private Double total;
 	
 	@OneToOne(cascade = CascadeType.ALL)
@@ -37,4 +39,5 @@ public class Orderdetail {
 	@CreationTimestamp
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date orderTime;
+	
 }

@@ -1,119 +1,142 @@
 package com.product.controller;
 
-import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.validation.Valid;
+import javax.servlet.http.HttpServletResponse;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ser.FilterProvider;
+import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
+import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.product.domain.Product;
 import com.product.dto.ProductRequest;
-import com.product.dto.ProductResponse;
-import com.product.model.HttpstatusModel;
+import com.product.enums.InputViolation;
+import com.product.exception.ProductException;
 import com.product.service.ProductServiceImpl;
 
+
 @RestController
-@RequestMapping("version1/product")
+@RequestMapping("product")
 public class ProductController {
 
 	@Autowired ProductServiceImpl service;
 	@Autowired ModelMapper mapper;
-	@Autowired HttpstatusModel status;
-	@Autowired String errorForInput;
 	
-	@PostMapping
-	public ResponseEntity<Object> save(@RequestBody @Valid ProductRequest request, BindingResult result){
-		
-		//Check errors
-		service.checkNulls(result);
-		service.checkIfConvertable(request.getPrice());
-		service.checkIfConvertable(request.getStocks());
+	ObjectMapper jsonmapper = new ObjectMapper();
+	FilterProvider filters = new SimpleFilterProvider()
+		      .addFilter("productFilter", 
+		    		  SimpleBeanPropertyFilter
+				      .serializeAll());
+	
+	@PostMapping(produces="application/json")
+	@ResponseBody()
+	public Object save(@RequestBody ProductRequest request, HttpServletResponse res) throws JsonProcessingException{
 		
 		//Get the product requested
-		Product productRequest = mapper.map(request, Product.class);
+		var prequest = mapper.map(request, Product.class);
 		
 		//Check for conflicts
-		service.checkConflicts(productRequest);
+		service.checkConflicts(prequest);
+		service.checkPrice(request.getPrice());
 		
-		//If no errors found, save the product and return the service returned object
-		return new ResponseEntity<>(
-			mapper.map(service.save(productRequest), ProductResponse.class), HttpStatus.CREATED);
+		prequest.setAvailable(prequest.getStocks());
+		prequest.setBooked(0l);
+		prequest.setCheckedout(0l);
+		
+		return jsonmapper.writer(filters)
+			    		.writeValueAsString(mapper.map(service.save(prequest), com.product.dto.Product.class));
 	}
 	
-	@GetMapping
-	public ResponseEntity<List<Object>> getAllProducts() {
-		return new ResponseEntity<>(service.getAllProducts().stream().map(post -> 
-		mapper.map(post, ProductResponse.class)).collect(Collectors.toList()), HttpStatus.OK);
+	@GetMapping(
+			  value = "get-all", 
+			  produces="application/json"
+	) 
+	@ResponseBody()
+	public Object getAllProducts() throws JsonProcessingException {
+		return jsonmapper.writer(filters).writeValueAsString(
+				service.getAllProducts().stream().map(post -> 
+		mapper.map(post, com.product.dto.Product.class)).collect(Collectors.toList()));
 	}
 	
-	@GetMapping("{id}")
-	public ResponseEntity<Object> getProduct(@PathVariable(value="id")Long id) {
-		return new ResponseEntity<>(mapper.map(service.getProduct(id), ProductResponse.class),HttpStatus.OK);
+	
+	@GetMapping(
+			  value = "{productId}", 
+			  produces="application/json"
+	) 
+	@ResponseBody()
+	public Object getProduct(@PathVariable("productId") Long id) throws JsonProcessingException {
+	    
+	    FilterProvider filters = new SimpleFilterProvider()
+	      .addFilter("productFilter", 
+	    		  SimpleBeanPropertyFilter
+	    	      .serializeAllExcept("productId"));
+	    
+	    return jsonmapper.writer(filters)
+	    		.writeValueAsString(mapper.map(service.getProduct(id), com.product.dto.Product.class));
 	}
 	
-	@PutMapping("{id}")
-	public ResponseEntity<Object> updateProduct(@RequestBody @Valid ProductRequest updated, BindingResult result, @PathVariable(value="id")Long id) {
+	@PutMapping(value="{productId}", produces="application/json")
+	@ResponseBody()
+	public Object updateProduct(@RequestBody ProductRequest updated, @PathVariable("productId") Long id) throws JsonProcessingException {
 		
 		//CHECKING ERRORS
 		service.checkProduct(id);
-		service.checkNulls(result);
-		service.checkIfConvertable(updated.getPrice());
-		service.checkIfConvertable(updated.getStocks());
-		
+		service.checkPrice(updated.getPrice());
 		
 		//GETTING THE PRODUCT
-		Product originalProduct = service.getProduct(id);
-		Product updatedProduct = mapper.map(updated, Product.class);
+		var originalProduct = service.getProduct(id);
+		var updatedProduct = mapper.map(updated, Product.class);
 		
-		//IF REQUESTED PRODUCT FOR PATCHING HAS NO CHANGES
-		if(originalProduct.equals(updatedProduct)) {
-			return new ResponseEntity<>(mapper.map(originalProduct, ProductResponse.class), HttpStatus.OK);
-		}
-		
+		updatedProduct.setProductId(id);
+		updatedProduct.setBooked(originalProduct.getBooked());
+		updatedProduct.setCheckedout(originalProduct.getBooked());
+		updatedProduct.setCreateDate(originalProduct.getCreateDate());
+		updatedProduct.setModifiedDate(originalProduct.getModifiedDate());
+		updatedProduct.setAvailable(updatedProduct.getStocks()-originalProduct.getBooked());
+			 
 		//ELSE CHANGES DETECTED
-		else {
+		if(!originalProduct.equals(updatedProduct))  {
 			
-			Boolean nameIsUnchanged = Boolean.TRUE.equals(originalProduct.getName().equals(updatedProduct.getName()));
-			Boolean codeIsUnchanged = Boolean.TRUE.equals(originalProduct.getCode().equals(updatedProduct.getCode()));
-			Boolean categoryIsUnchanged = Boolean.TRUE.equals(originalProduct.getCategory().equals(updatedProduct.getCategory()));
+			//VALIDATING NAME AND CODE IF THERE ARE ANY CONFLICTS
+			Boolean nameChanged = Boolean.FALSE.equals(originalProduct.getName().equals(updatedProduct.getName()));
+			Boolean codeChanged = Boolean.FALSE.equals(originalProduct.getCode().equals(updatedProduct.getCode()));
 			
-			
-			//IF ONLY NAME IS UNCHANGED
-			if(nameIsUnchanged && !codeIsUnchanged) 
+			if(Boolean.TRUE.equals(nameChanged))
 				service.checkConflicts(
-						new Product(updatedProduct.getCategory(), null, updatedProduct.getCode()));
-				
-			//IF ONLY CODE IS UNCHANGED
-			else if(!nameIsUnchanged && codeIsUnchanged) 
+					new Product(updatedProduct.getCategory(), updatedProduct.getName(), null));
+			if(Boolean.TRUE.equals(codeChanged))
 				service.checkConflicts(
-						new Product(updatedProduct.getCategory(), updatedProduct.getName(), null));
+						new Product(updatedProduct.getCategory(), null , updatedProduct.getCode()));
 			
-			//IF BOTH NAME AND CODE IS UNCHANGED BUT CATEGORY HAS CHANGED
-			else if(nameIsUnchanged && codeIsUnchanged && !categoryIsUnchanged)
-				service.checkConflicts(new Product(originalProduct.getCategory(), updatedProduct.getName(), null));
-				
-			//IF BOTH NAME AND CODE IS CHANGED
-			else service.checkConflicts(updatedProduct);
-				
-			//
-			return new ResponseEntity<>(
-					mapper.map(service.updateProduct(updatedProduct, id), ProductResponse.class), 
-					status.getApistatus());
+			//VALIDATING NEW STOCKS
+			if(updatedProduct.getStocks()<originalProduct.getBooked())
+				throw new ProductException(
+						HttpStatus.BAD_REQUEST,
+						InputViolation.UNACCEPTABLEINPUT,
+						"Invalid Stock Quantity Request Input: Refer to the below Information:\n"
+						+ "*Reserved Quantity of Products: "+originalProduct.getBooked()+"\n"
+						+ "The requested quantity of new stock is less than the reserved products which should not be affected"
+						);
 			
+			
+			return jsonmapper.writer(filters)
+		    		.writeValueAsString(mapper.map(service.updateProduct(updatedProduct), com.product.dto.Product.class));
 		}
+		
+		return jsonmapper.writer(filters)
+				.writeValueAsString(mapper.map(service.updateProduct(originalProduct), com.product.dto.Product.class));
 	}
-
-	
 }
