@@ -13,9 +13,9 @@ import com.product.domain.Orderdetail;
 import com.product.domain.Product;
 import com.product.domain.PurchasedHistory;
 import com.product.domain.Shippinginformation;
+import com.product.dto.order.OrderRequest;
+import com.product.dto.order.RequestInfo;
 import com.product.enums.ShippingStatus;
-import com.product.order.dto.OrderRequest;
-import com.product.order.dto.RequestInfo;
 
 @Service
 public class ProductServiceImpl extends ProductService {
@@ -32,8 +32,7 @@ public class ProductServiceImpl extends ProductService {
 	}
 	
 	@Override
-	public Product getProduct(Long id) {
-		checkProduct(id);
+	public Object getProduct(Long id) {
 		return repository.getProduct(id);
 	}
 	
@@ -48,7 +47,7 @@ public class ProductServiceImpl extends ProductService {
 		Double total=0d;
 		
 		for(RequestInfo item : request.getItemDetails()) {
-			Product fullDetails = getProduct(item.getProductId());
+			Product fullDetails = (Product) getProduct(item.getProductId());
 			fullDetails.setBooked(fullDetails.getBooked()-item.getQuantity());
 			fullDetails.setStocks(fullDetails.getStocks()-item.getQuantity());
 			//products that are available are considered as not yet booked

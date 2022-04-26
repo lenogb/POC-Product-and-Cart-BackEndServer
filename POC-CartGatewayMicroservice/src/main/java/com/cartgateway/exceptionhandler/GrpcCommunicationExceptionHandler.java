@@ -1,20 +1,24 @@
 package com.cartgateway.exceptionhandler;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import com.cartgateway.logger.GatewayLogger;
+import com.cartgateway.dtos.ErrorResponse;
+import com.cartgateway.logging_and_tracing.GatewayLogger;
 
 import io.grpc.StatusRuntimeException;
 
-@ControllerAdvice
+@RestControllerAdvice
 public class GrpcCommunicationExceptionHandler {
 	
 	@Autowired GatewayLogger logger;
 	
 	@ExceptionHandler(StatusRuntimeException.class)
-	public void status(StatusRuntimeException e) {
-		logger.logThis("Thrown exeception: "+e.getClass()+" "+e.getMessage());
+	public ResponseEntity<ErrorResponse> status(StatusRuntimeException e) {
+		logger.error("Thrown exeception: "+e.getClass()+" "+e.getMessage());
+		return new ResponseEntity<>(new ErrorResponse(e.getMessage(),e.getStatus().toString()), HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 }

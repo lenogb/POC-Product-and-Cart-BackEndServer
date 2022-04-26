@@ -88,11 +88,6 @@
 		  <groupId>com.google.code.gson</groupId>
 		  <artifactId>gson</artifactId>
 		</dependency>
-		<!-- <dependency>
-			<groupId>POC</groupId>
-			<artifactId>POC-CartGatewayMicroservice</artifactId>
-			<version>1.0.0</version>
-		</dependency> -->
 		
 	</dependencies>
 
@@ -109,14 +104,7 @@
 						</exclude>
 					</excludes>
 				</configuration>
-				<executions>
-					<execution>
-						<id>repackage</id>
-						<configuration>
-							<classifier>exec</classifier>
-						</configuration>
-					</execution>
-				</executions>
+				
 			</plugin>
 		</plugins>
 		<finalName>product</finalName>

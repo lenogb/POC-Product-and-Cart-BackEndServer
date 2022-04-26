@@ -11,18 +11,23 @@ import javax.transaction.Transactional;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 
 import com.product.domain.Orderdetail;
 import com.product.domain.Product;
 import com.product.domain.PurchasedHistory;
 import com.product.domain.Shippinginformation;
+import com.product.enums.InputViolation;
+import com.product.enums.ServerStatus;
+import com.product.exception.ProductException;
 
 @Repository
 @Transactional
 public class MicroserviceRepository {
 	
 	@Autowired SessionFactory sessionFactory;
+	
 
 	public List<Product> getAllProducts() {
 		Session session= this.sessionFactory.getCurrentSession();
@@ -34,14 +39,18 @@ public class MicroserviceRepository {
 		return session.createQuery(query).getResultList();
 	}
 	
-	public Product getProduct(Long id) {
+	public Object getProduct(Long id) {
 		Session session= this.sessionFactory.getCurrentSession();
-		CriteriaBuilder builder = session.getCriteriaBuilder();
-		CriteriaQuery<Product> query = builder.createQuery(Product.class );
-		Root<Product> fromProduct = query.from(Product.class );
-		query.select(fromProduct);
-			query.where(builder.equal(fromProduct.get("productId"), id));
-		return session.createQuery(query).getSingleResult();
+		try {
+			return session.createQuery(
+			    "from Product product where product.productId = :id").setParameter("id", id).getSingleResult();
+		}
+		catch(javax.persistence.NoResultException e) {
+			throw new ProductException(
+					HttpStatus.NOT_FOUND, 
+					ServerStatus.REQUEST_INVALID.name(),
+					InputViolation.NOTFOUND.getMessage());
+		}
 	}
 	
 	public void updateProduct(Product updated) {

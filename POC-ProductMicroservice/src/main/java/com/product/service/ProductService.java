@@ -1,30 +1,26 @@
 package com.product.service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.validation.BindingResult;
 
 import com.product.domain.Orderdetail;
 import com.product.domain.Product;
-import com.product.dto.ExceptionStatusModel;
+import com.product.dto.order.OrderRequest;
 import com.product.enums.InputViolation;
+import com.product.enums.ServerStatus;
 import com.product.exception.ProductException;
-import com.product.order.dto.OrderRequest;
 import com.product.repository.MicroserviceRepository;
 
 public abstract class ProductService {
 	
 	@Autowired MicroserviceRepository repository;
-	@Autowired ExceptionStatusModel validationResult;
 	
 	abstract Object save(Object product);
 	abstract List<Product> getAllProducts();
-	abstract Product getProduct(Long id);
+	abstract Object getProduct(Long id);
 	abstract Product updateProduct(Product updated);
 	abstract Orderdetail createOrder(OrderRequest request, String consumer);
 
@@ -63,39 +59,13 @@ public abstract class ProductService {
 		Integer codeCount = countCode(product);
 			
 		if(nameCount>0) 
-			throw new ProductException(HttpStatus.CONFLICT, InputViolation.CONFLICTNAME,
-				errorForInput+product.getName()+" under "+product.getCategory());	
+			throw new ProductException(HttpStatus.CONFLICT, ServerStatus.REQUEST_INVALID.name(),
+				errorForInput+product.getName()+" under "+product.getCategory()+". "+InputViolation.CONFLICTNAME.getMessage());	
 		if(codeCount>0) 
-			throw new ProductException(HttpStatus.CONFLICT, InputViolation.CONFLICTCODE,
-				errorForInput+product.getCode());
+			throw new ProductException(HttpStatus.CONFLICT, ServerStatus.REQUEST_INVALID.name(),
+				errorForInput+product.getCode()+". "+InputViolation.CONFLICTCODE);
 	}
-		
-		
-		
-	//CHECKING NULLS IN REQUESTS
-	public void checkNulls(BindingResult result) {
-		if(result.hasErrors()) {
-			List<String> errorMessages = new ArrayList<>();
-			result.getAllErrors().forEach((e) -> {
-				errorMessages.add(e.getDefaultMessage());
-			});
-			throw new ProductException(
-				HttpStatus.BAD_REQUEST,
-				InputViolation.NULLFIELDS,
-				Arrays.toString(errorMessages.toArray()));
-		}
-	}
-		
-		
-	//CHECKING IF PRODUCT IS NULL
-	public void checkProduct(Long id) {
-		Product product = repository.getProduct(id);
-		if(product==null)
-			throw new ProductException(
-				HttpStatus.NOT_FOUND, 
-				InputViolation.NOTFOUND,
-				errorForInput+id);
-	}
+
 	
 	
 	//CHECK IF THE INPUTED PRICE IS GOOD
@@ -103,8 +73,8 @@ public abstract class ProductService {
 		if(price<=0)
 			throw new ProductException(
 				HttpStatus.BAD_REQUEST,
-				InputViolation.UNACCEPTABLEINPUT,
-				errorForInput+"Price: "+price+": Invalid Price");
+				ServerStatus.REQUEST_INVALID.name(),
+				errorForInput+"Price: "+price+": Invalid Price. "+InputViolation.UNACCEPTABLEINPUT.getMessage());
 		
 	}
 		
@@ -114,7 +84,7 @@ public abstract class ProductService {
 		if(product.getAvailable()<=0) 
 			throw new ProductException(
 				HttpStatus.BAD_REQUEST,
-				InputViolation.UNAVAILABLE,
+				ServerStatus.REQUEST_INVALID.name(),
 				errorForInput+"Product: "+product.getName()+" with available stock of -> "+product.getAvailable());
 	}
 		
@@ -123,12 +93,12 @@ public abstract class ProductService {
 		if(qty<=0)
 			throw new ProductException(
 				HttpStatus.BAD_REQUEST,
-				InputViolation.UNACCEPTABLEINPUT,
+				ServerStatus.REQUEST_INVALID.name(),
 				errorForInput+"Product: "+product.getName()+". Quantity specified should not less than or equal to zero");
 		if(qty>product.getAvailable())
 			throw new ProductException(
 				HttpStatus.BAD_REQUEST,
-				InputViolation.QUANTITYEXCEEDED, 
-				errorForInput+"Product: "+product.getName()+" with the quantity >>> "+qty);
+				ServerStatus.REQUEST_INVALID.name(),
+				errorForInput+"Product: "+product.getName()+" with the quantity >>> "+qty+". "+InputViolation.QUANTITYEXCEEDED.getMessage());
 	}
 }

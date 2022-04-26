@@ -12,7 +12,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
-import com.cartgateway.logger.GatewayLogger;
+import com.cartgateway.dtos.ErrorResponse;
+import com.cartgateway.exception.ProcessFailedException;
+import com.cartgateway.logging_and_tracing.GatewayLogger;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Component
@@ -22,14 +24,15 @@ public class ProductMicroserviceCommunicator {
 	// SEND DATA TO PRODUCT MICROSERVICE USING HTTPCLIENT CLASS
 	//-----------------------------------------------------------------//
 	
-//	@Value("${PATH.TO.PRODUCT-MICROSERVICE}")
-	@Value("http://localhost:8887/api/v1/cartRelatedOperations")
+	@Value("${PATH-TO-PRODUCT-MICROSERVICE:http://localhost:8887/api/v1/cartRelatedOperations}")
 	private String otherServletsContextPath;
 	@Autowired GatewayLogger logger;
 	
+	String message = "Call for Product Microservice method failed. Status: ";
+	
 	HttpClient client = HttpClient.newHttpClient();
 	
-	public int sendRequestToProductMicroservice(
+	public void sendRequestToProductMicroservice(
 			String uri, 
 			Object requestBody) throws IOException, InterruptedException {
 		
@@ -47,12 +50,18 @@ public class ProductMicroserviceCommunicator {
 					      req,
 					      HttpResponse.BodyHandlers.ofByteArray());
 			
-			logger.logThis(
+			logger.info(
 					"Sent request to: "+future.uri()+" ["+future.request().method()+"]"
 					+". Response status code: "+future.statusCode()+" ["+HttpStatus.valueOf(future.statusCode())+"]"
 					);
 			
-			return future.statusCode();
-		
+		if(future.statusCode()>226) {
+			throw new ProcessFailedException(
+					HttpStatus.valueOf(future.statusCode()),
+					message+HttpStatus.valueOf(future.statusCode())+" ["+HttpStatus.valueOf(future.statusCode()).getReasonPhrase()+"]"+
+					" Message from Product Microservice: "+
+					mapper.readValue(future.body(), ErrorResponse.class).getDebugmessage());
+		}
+			
 	}
 }

@@ -4,8 +4,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.cartgateway.servercomm.grpc.CartServiceGrpc;
-import com.cartgateway.servercomm.grpc.CartServiceGrpc.CartServiceBlockingStub;
+import com.cart.grpc.generated_sources.CartServiceGrpc;
+import com.cart.grpc.generated_sources.CartServiceGrpc.CartServiceBlockingStub;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;

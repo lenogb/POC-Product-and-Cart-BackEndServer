@@ -79,9 +79,7 @@ public class CartServiceImpl extends CartServiceImplBase{
 		Product product = mapper.getProduct(productId);
 		
 		//CHECKING ERRORS
-		check.checkProductExistence(product);
 		check.checkAvailability(product);	//checking availability
-		check.checkQuantity(quantity, product);
 		
 		Long cartId = getCartId(user);
 		
@@ -121,7 +119,6 @@ public class CartServiceImpl extends CartServiceImplBase{
 		Long cartId = getCartId(request.getUsername().getUsername());
 		
 		//CHECKING ERRORS
-		check.checkProductExistence(mapper.getProduct(request.getProductId()));
 		check.checkProductUnderCart(cartId, request.getProductId());
 		
 		mapper.remove(cartId, request.getProductId());
@@ -139,13 +136,13 @@ public class CartServiceImpl extends CartServiceImplBase{
       	if(!lists.isEmpty())
       		lists.forEach(item->{
       			mapper.remove(cartId, item.getProductId());
-      		responseObserver.onNext(StringResult.newBuilder().setMessage("SUCCESS").build());
       	});
       	else 
       		throw new NoItemsYetException(
 					RequestError.UNACCEPTABLEINPUT,
 					"Your cart doesn't have yet items. Request for Check-out is cancelled");
       	
+      	responseObserver.onNext(StringResult.newBuilder().setMessage("SUCCESS").build());
       	responseObserver.onCompleted();
 	}
 

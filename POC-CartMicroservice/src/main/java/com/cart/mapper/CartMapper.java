@@ -24,7 +24,6 @@ public interface CartMapper {
 	@Select("SELECT * FROM product WHERE productId=#{productId}") 
 	Product getProduct(Long productId);
 	
-	
 	//CART TABLE
 	@Select(GETCARTID) 
 	Long getCartIdByCustomer(String customer);
@@ -57,4 +56,5 @@ public interface CartMapper {
     
     @Delete("DELETE FROM cartitem WHERE productId=#{productId} AND cartId=#{cartId}")
     int remove(Long cartId, Long productId);
+    
 }

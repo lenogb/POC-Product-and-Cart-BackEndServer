@@ -1,7 +1,8 @@
 package com.product.dto;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 
 import org.springframework.stereotype.Component;
 
@@ -24,9 +25,10 @@ public class ProductRequest {
 	private String code;
 	@NotEmpty(message="Empty Input ---- Field: Description")
 	private String description;
-	@NotNull(message="Empty Input ---- Field: Price")
+	@Min(value=1, message="Cannot have 0 price. Please provide one with minimum price of 1")
+	@Max(value=50000, message="Price should not be greater than 50,000")
 	private Double price;
-	@NotNull(message="Empty Input ---- Field: Stock")
+	@Min(value=1, message="Cannot store a product with stock of 0. Please provide one with minimum number of 1")
 	private Long stocks;
 	
 	@Override

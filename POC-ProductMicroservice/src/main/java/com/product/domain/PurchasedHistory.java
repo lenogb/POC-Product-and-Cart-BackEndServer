@@ -22,12 +22,13 @@ public class PurchasedHistory{
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long no;
-	private String consumer;
+	private Long orderId;
 	private Long quantity;
 	private Long productId;
 	private Date orderTime;
 	
-	public void setQuantityAndProduct(Long quantity, Long productId) {
+	public void setQuantityAndProduct(Long orderId, Long quantity, Long productId) {
+		this.orderId=orderId;
 		this.quantity = quantity;
 		this.productId = productId;
 	}

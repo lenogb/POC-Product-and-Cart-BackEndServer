@@ -72,11 +72,6 @@
             <artifactId>grpc-stub</artifactId>
             <version>${grpc.version}</version>
         </dependency>
-        <!-- <dependency>
-            <groupId>POC</groupId>
-			<artifactId>POC-CartMicroservice</artifactId>
-			<version>1.0.0</version>
-        </dependency> -->
         
         <!-- Swagger -->
 		<dependency>

@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,14 +17,18 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.cartgateway.dtos.RequestInfo;
 import com.cartgateway.dtos.ResponseInfo;
 import com.cartgateway.exception.ProcessFailedException;
 import com.cartgateway.servercomm.grpc.CartMicroserviceCommunicator;
 import com.cartgateway.servercomm.http.OrderRequest;
 import com.cartgateway.servercomm.http.ProductMicroserviceCommunicator;
-import com.cartgateway.servercomm.http.RequestInfo;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
+@Tag(name = "Cart Resource Controller", description = "Create Cart, Add Item, Remove Item, Update Item, Check-Out")
 @RestController
 @RequestMapping("cart")
 public class CartController {
@@ -31,44 +36,61 @@ public class CartController {
 	@Autowired CartMicroserviceCommunicator service;
 	@Autowired ProductMicroserviceCommunicator pm;
 
-	String message = "Call for Product Microservice method failed. Status: ";
 	
+	@Operation(summary = "Add to Cart", description = "Adds new Item on the cart")
+	@ApiResponse(responseCode = "200", description = "Item Successfully Added to Cart")
+	@ApiResponse(responseCode = "400", description = "Request might be invalid or unavailable to resource")
 	@PostMapping("add-to-cart")
-    public Object addToCart(@RequestBody RequestInfo model, HttpServletRequest req) throws IOException, InterruptedException, ExecutionException  {
+    public Object addToCart(@RequestBody RequestInfo model, BindingResult validationResult, HttpServletRequest req) throws IOException, InterruptedException, ExecutionException  {
 		
-		service.addToCart(model, req.getUserPrincipal().getName());
-		int statusOfProcess = pm.sendRequestToProductMicroservice("/book",model);
+		if(validationResult.hasErrors()) {
+			validationResult.getAllErrors().forEach(error->{
+				throw new ProcessFailedException(HttpStatus.BAD_REQUEST,error.getDefaultMessage());
+			});
+		}
+		List<ResponseInfo> resultLists = service.addToCart(model, req.getUserPrincipal().getName());
+		if(!resultLists.isEmpty()) 
+			pm.sendRequestToProductMicroservice("/book",model);
 		
-		if(statusOfProcess<=226) 
-			return service.listAll(req.getUserPrincipal().getName());
-		
-		throw new ProcessFailedException(
-				HttpStatus.valueOf(statusOfProcess),
-				message+HttpStatus.valueOf(statusOfProcess)+" ["+HttpStatus.valueOf(statusOfProcess).getReasonPhrase()+"]");
+		return resultLists;
     }
     
+	
+	@Operation(summary = "Get all Items", description = "Gives all items inside the cart associated on the logged in account")
+	@ApiResponse(responseCode = "200", description = "Success")
 	@GetMapping
     public Object listAll(HttpServletRequest req) {
     	return service.listAll(req.getUserPrincipal().getName());
     }
     
+	
+	@Operation(summary = "Remove Item", description = "Removes Item from the Cart associated on the account logged in")
+	@ApiResponse(responseCode = "200", description = "Removed successfully")
+	@ApiResponse(responseCode = "400", description = "Request might be invalid or unavailable to resource")
     @DeleteMapping
-    public Object removeItem(@RequestBody RequestInfo request, HttpServletRequest req) throws Throwable {
-		service.removeItem(request, req.getUserPrincipal().getName());
-		int statusOfProcess = pm.sendRequestToProductMicroservice("/remove", request);
+    public Object removeItem(@RequestBody RequestInfo request,BindingResult validationResult, HttpServletRequest req) throws Throwable {
 		
-		if(statusOfProcess<=202) 
-			return service.listAll(req.getUserPrincipal().getName());
+		if(validationResult.hasErrors()) {
+			validationResult.getAllErrors().forEach(error->{
+				throw new ProcessFailedException(HttpStatus.BAD_REQUEST,error.getDefaultMessage());
+			});
+		}
 		
-		throw new ProcessFailedException(
-				HttpStatus.valueOf(statusOfProcess),
-				message+HttpStatus.valueOf(statusOfProcess)+" ["+HttpStatus.valueOf(statusOfProcess).getReasonPhrase()+"]");
+		pm.sendRequestToProductMicroservice("/remove", request);
 		
+		return service.removeItem(request, req.getUserPrincipal().getName());
     }
     
-   
+	@Operation(summary = "Place Order", description = "Process Orders")
+	@ApiResponse(responseCode = "200", description = "Successfully Processed")
 	@DeleteMapping(value="check-out")
-    public Object checkOut(@RequestBody OrderRequest order, HttpServletRequest req) throws Throwable {
+    public Object checkOut(@RequestBody OrderRequest order, BindingResult validationResult, HttpServletRequest req) throws Throwable {
+		
+		if(validationResult.hasErrors()) {
+			validationResult.getAllErrors().forEach(error->{
+				throw new ProcessFailedException(HttpStatus.BAD_REQUEST,error.getDefaultMessage());
+			});
+		}
 		
 		List<ResponseInfo> lists= service.listAll(req.getUserPrincipal().getName());
 		List<RequestInfo> mapped = new ArrayList<>();
@@ -77,16 +99,12 @@ public class CartController {
 		});
 		order.setItemDetails(mapped);
 		order.setConsumer(req.getUserPrincipal().getName());
+    	
+    	
+    	pm.sendRequestToProductMicroservice("/order", order);
+    	
     	service.checkOut(req.getUserPrincipal().getName());
-    	
-    	int statusOfProcess = pm.sendRequestToProductMicroservice("/order", order);
-    	
-    	if(statusOfProcess<=202)
-    		return "SUCCESSFULLY PROCESSED";
-    	
-    	throw new ProcessFailedException(
-    			HttpStatus.valueOf(statusOfProcess),
-    			message+HttpStatus.valueOf(statusOfProcess)+" ["+HttpStatus.valueOf(statusOfProcess).getReasonPhrase()+"]");
+    	return "SUCCESSFULLY PROCESSED";
     }
 	
 }

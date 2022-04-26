@@ -2,6 +2,10 @@ package com.cartgateway.exception;
 
 import org.springframework.http.HttpStatus;
 
+import lombok.Getter;
+
+
+@Getter
 public class ProcessFailedException extends RuntimeException{
 
 	/**

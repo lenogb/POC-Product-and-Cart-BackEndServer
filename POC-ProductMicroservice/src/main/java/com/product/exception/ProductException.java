@@ -2,8 +2,6 @@ package com.product.exception;
 
 import org.springframework.http.HttpStatus;
 
-import com.product.enums.InputViolation;
-
 import lombok.Getter;
 
 @SuppressWarnings("serial")
@@ -11,11 +9,11 @@ import lombok.Getter;
 public class ProductException extends RuntimeException{
 
 	private final HttpStatus apistatus;
-	private final InputViolation errorfound;
+	private final String status;
 		
-	public ProductException(HttpStatus apistatus,InputViolation errorfound,Object debugmessage) {
+	public ProductException(HttpStatus apistatus,String status,Object debugmessage) {
 		super((String) debugmessage);
 		this.apistatus=apistatus;
-		this.errorfound=errorfound;
+		this.status=status;
 	}
 }

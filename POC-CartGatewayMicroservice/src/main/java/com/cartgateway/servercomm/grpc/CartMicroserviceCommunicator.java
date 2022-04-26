@@ -6,9 +6,14 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.cart.grpc.generated_sources.CartServiceGrpc.CartServiceBlockingStub;
+import com.cart.grpc.generated_sources.ListResponse;
+import com.cart.grpc.generated_sources.Request;
+import com.cart.grpc.generated_sources.StringResult;
+import com.cart.grpc.generated_sources.User;
+import com.cartgateway.dtos.RequestInfo;
 import com.cartgateway.dtos.ResponseInfo;
-import com.cartgateway.servercomm.grpc.CartServiceGrpc.CartServiceBlockingStub;
-import com.cartgateway.servercomm.http.RequestInfo;
+import com.cartgateway.enums.ServerStatus;
 
 @Component
 public class CartMicroserviceCommunicator {
@@ -53,7 +58,8 @@ public class CartMicroserviceCommunicator {
       				object.getItems(i).getProductId(),
       				object.getItems(i).getName(),
       				object.getItems(i).getPrice(),
-      				object.getItems(i).getQuantity()
+      				object.getItems(i).getQuantity(),
+      				ServerStatus.FINE.name()
       				));
       	}
       	return list;

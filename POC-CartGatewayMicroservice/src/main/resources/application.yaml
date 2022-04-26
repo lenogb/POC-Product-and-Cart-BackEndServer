@@ -18,8 +18,6 @@ management:
 springdoc:
   swagger-ui:
     path: /api-docs.html
-  api-docs:
-    path : /swagger.yaml
 #    config-url: 
 #  show-login-endpoint: true
 #  show-actuator: true
@@ -27,12 +25,12 @@ springdoc:
 
 #LOGGING PROPERTIES
 # Empty this property to disable console logging
-logging:
-  pattern:
-    console: 
-
-# Specify the path to the main log file so you will still have your logs somewhere
-  file:
-    name: ./src/main/resources/Logs.log
+#logging:
+#  pattern:
+#    console: 
+#
+## Specify the path to the main log file so you will still have your logs somewhere
+#  file:
+#    name: ./src/main/resources/Logs.log
 
   

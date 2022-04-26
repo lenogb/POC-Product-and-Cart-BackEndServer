@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import com.cartgateway.logger.GatewayLogger;
+import com.cartgateway.logging_and_tracing.GatewayLogger;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 @ControllerAdvice
@@ -14,7 +14,7 @@ public class JsonParsingExceptionHandler {
 	
 	@ExceptionHandler(JsonProcessingException.class)
 	public void catchException(JsonProcessingException e) {
-		logger.logThis("Thrown exeception: "+e.getClass()+" "+e.getMessage());
+		logger.error("Thrown exeception: "+e.getClass()+" "+e.getMessage());
 	}
 
 }
