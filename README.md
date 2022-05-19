@@ -14,6 +14,9 @@ Since there is no User Microservice yet to provide user Informations, I created 
 1. Admin group- are consumers who are able to access routes with connection to product management like adding Product, Updating product and getting the lists of the products.
 2. Customer group - are consumers who are able to access routes with connection to cart services like creating cart upon consuming request, adding item and removing item from the cart.
 
+# Swagger API Documentation
 
+Product Microservice : http://localhost:8887/api/v1/api-docs.html
+Cart-Gateway Microservice : http://localhost:8889/api/v1/api-docs.html
 
 
