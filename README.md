@@ -1,3 +1,4 @@
+
 # POC- Application
 Docker is use to containerized all the microservices and run each of it as an image through Dockerfile located on each of their respective folders.
 Once Docker is installed, run this command on the command prompt:
@@ -19,4 +20,25 @@ Since there is no User Microservice yet to provide user Informations, I created 
 1. Product Microservice : http://localhost:8887/api/v1/api-docs.html
 2. Cart-Gateway Microservice : http://localhost:8889/api/v1/api-docs.html
 
+
+
+# EXPOSED ENDPOINTS
+# Product Management: (admin)
+1. Adding Product (POST) - localhost:8000/admin/manage-product
+2. List products (GET) - localhost:8000/admin/manage-product/get-all
+3. Get one product (GET) - localhost:8000/admin/manage-product/{Product-ID-to-get}
+4. Modify Product (PUT) - localhost:8000/admin/manage-product/{Product-ID-to-modify}
+
+# Get Infomation as a customer
+5. List products (GET) - localhost:8000/product/get-all
+6. Get one product (GET) - localhost:8000/product/{Product-ID-to-get}
+7. Get all processed orders (GET) - localhost:8000/manage-order/get-all
+
+# Cart Service
+8. Add to Cart (POST) - localhost:8000/cart/add-to-cart
+9. Get all items (GET) - localhost:8000/cart
+10. Remove item from cart (DELETE) - localhost:8000/cart
+11. Check-out (DELETE) - localhost:8000/cart/check-out
+
+Kong is running on port 8000
 
