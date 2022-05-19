@@ -16,7 +16,7 @@ Since there is no User Microservice yet to provide user Informations, I created 
 
 # Swagger API Documentation
 
--Product Microservice : http://localhost:8887/api/v1/api-docs.html
--Cart-Gateway Microservice : http://localhost:8889/api/v1/api-docs.html
+1. Product Microservice : http://localhost:8887/api/v1/api-docs.html
+2. Cart-Gateway Microservice : http://localhost:8889/api/v1/api-docs.html
 
 
