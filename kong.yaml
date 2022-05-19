@@ -1,0 +1,188 @@
+_format_version: "1.1"
+consumers:
+- acls:
+  - group: adminGroup
+  basicauth_credentials:
+  - password: ec8f8cb06f300f915e8286f1d6d1e183aaba65b6
+    username: admin
+  custom_id: Admin
+  username: Admin
+- acls:
+  - group: customerGroup
+  basicauth_credentials:
+  - password: e075260f5def78fbde8f3d85f828b3d698add461
+    username: customer
+  custom_id: Customer
+  username: Customer
+plugins:
+- config:
+    allow:
+    - adminGroup
+    deny: null
+    hide_groups_header: false
+  enabled: true
+  name: acl
+  protocols:
+  - grpc
+  - grpcs
+  - http
+  - https
+  route: Admin_toward_PM
+  service: ManagingProducts
+- config:
+    allow:
+    - customerGroup
+    deny: null
+    hide_groups_header: false
+  enabled: true
+  name: acl
+  protocols:
+  - grpc
+  - grpcs
+  - http
+  - https
+  route: Customer_toward_CGM
+  service: ForCustomerAccess2
+- config:
+    allow:
+    - customerGroup
+    deny: []
+    hide_groups_header: false
+  enabled: true
+  name: acl
+  protocols:
+  - grpc
+  - grpcs
+  - http
+  - https
+  route: Customer_toward_PM
+  service: ForCustomerAccess1
+- config:
+    allow:
+    - customerGroup
+    deny: null
+    hide_groups_header: false
+  enabled: true
+  name: acl
+  protocols:
+  - grpc
+  - grpcs
+  - http
+  - https
+  route: getOrdersFromLatestTime
+  service: ForCustomerAccess3
+- config:
+    anonymous: null
+    hide_credentials: false
+  enabled: true
+  name: basic-auth
+  protocols:
+  - grpc
+  - grpcs
+  - http
+  - https
+services:
+- connect_timeout: 60000
+  host: Product
+  name: ForCustomerAccess1
+  path: /api/v1/product
+  port: 8887
+  protocol: http
+  read_timeout: 60000
+  retries: 5
+  routes:
+  - https_redirect_status_code: 426
+    methods:
+    - GET
+    name: Customer_toward_PM
+    path_handling: v0
+    paths:
+    - /product
+    preserve_host: false
+    protocols:
+    - http
+    - https
+    regex_priority: 0
+    request_buffering: true
+    response_buffering: true
+    strip_path: true
+  write_timeout: 60000
+- connect_timeout: 60000
+  host: Cart-gateway
+  name: ForCustomerAccess2
+  path: /api/v1/cart
+  port: 8889
+  protocol: http
+  read_timeout: 60000
+  retries: 5
+  routes:
+  - https_redirect_status_code: 426
+    methods:
+    - DELETE
+    - POST
+    - GET
+    name: Customer_toward_CGM
+    path_handling: v0
+    paths:
+    - /cart
+    preserve_host: false
+    protocols:
+    - http
+    - https
+    regex_priority: 0
+    request_buffering: true
+    response_buffering: true
+    strip_path: true
+  write_timeout: 60000
+- connect_timeout: 60000
+  host: Product
+  name: ForCustomerAccess3
+  path: /api/v1/processOrder
+  port: 8887
+  protocol: http
+  read_timeout: 60000
+  retries: 5
+  routes:
+  - https_redirect_status_code: 426
+    methods:
+    - GET
+    name: getOrdersFromLatestTime
+    path_handling: v0
+    paths:
+    - /manage-order/get-all
+    preserve_host: false
+    protocols:
+    - http
+    - https
+    regex_priority: 0
+    request_buffering: true
+    response_buffering: true
+    strip_path: true
+  write_timeout: 60000
+- connect_timeout: 60000
+  host: Product
+  name: ManagingProducts
+  path: /api/v1/product
+  port: 8887
+  protocol: http
+  read_timeout: 60000
+  retries: 5
+  routes:
+  - https_redirect_status_code: 426
+    methods:
+    - POST
+    - PUT
+    - GET
+    name: Admin_toward_PM
+    path_handling: v0
+    paths:
+    - /admin/manage-product
+    preserve_host: false
+    protocols:
+    - http
+    - https
+    regex_priority: 0
+    request_buffering: true
+    response_buffering: true
+    strip_path: true
+  write_timeout: 60000
