@@ -18,10 +18,15 @@ import java.util.List;
 @Transactional
 public class MicroserviceRepository {
 
-	Session session= HibernateSessionFactoryProvider.session();
+	private final SessionFactory sessionFactory;
 
+	@Autowired
+	public MicroserviceRepository(SessionFactory sessionFactory) {
+		this.sessionFactory = sessionFactory;
+	}
 
 	public List<Product> getAllProducts() {
+		Session session = sessionFactory.getCurrentSession();
 		CriteriaBuilder builder = session.getCriteriaBuilder();
 		CriteriaQuery<Product> criteria = builder.createQuery(Product.class);
 			criteria.select(criteria.from(Product.class));
@@ -30,6 +35,7 @@ public class MicroserviceRepository {
 	}
 
 	public Product update(Product updated) {
+		Session session = sessionFactory.getCurrentSession();
 		updated.setAvailable(updated.getStocks()-updated.getBooked());
 		session.merge(updated);
 		session.flush();
@@ -38,12 +44,14 @@ public class MicroserviceRepository {
 
 
 	public Product saveProduct(Product product) {
+		Session session = sessionFactory.getCurrentSession();
 		session.persist(product);
 		session.flush();
 		return product;
 	}
 
 	public OrderDetail saveOrder(OrderDetail orderDetail) {
+		Session session = sessionFactory.getCurrentSession();
 		session.persist(orderDetail);
 		session.flush();
 		return orderDetail;
@@ -51,6 +59,7 @@ public class MicroserviceRepository {
 
 
 	public List<OrderDetail> getAllOrders(String principal) {
+		Session session = sessionFactory.getCurrentSession();
 		CriteriaBuilder builder = session.getCriteriaBuilder();
 		CriteriaQuery<OrderDetail> criteria = builder.createQuery(OrderDetail.class);
 		Root<OrderDetail> orderDetailRoot =criteria.from(OrderDetail.class);
@@ -63,6 +72,7 @@ public class MicroserviceRepository {
 
 
 	public int countTrackingNumber(String tracking){
+		Session session = sessionFactory.getCurrentSession();
 		CriteriaBuilder builder = session.getCriteriaBuilder();
 		CriteriaQuery<ShippingInformation> criteria = builder.createQuery(ShippingInformation.class);
 		Root<ShippingInformation> shippingInformationRoot =criteria.from(ShippingInformation.class);
@@ -73,6 +83,7 @@ public class MicroserviceRepository {
 	}
 
 	public Product getProductById(Long id){
+		Session session = sessionFactory.getCurrentSession();
 		Product product = session.find(Product.class, id);
 		if(product==null){
 			throw new ProductException("Product not found");
@@ -82,6 +93,7 @@ public class MicroserviceRepository {
 	}
 
 	public OrderDetail getOrderByConsumer(String consumer){
+		Session session = sessionFactory.getCurrentSession();
 		CriteriaBuilder builder = session.getCriteriaBuilder();
 		CriteriaQuery<OrderDetail> criteria = builder.createQuery(OrderDetail.class);
 		Root<OrderDetail> orderDetailRoot =criteria.from(OrderDetail.class);
