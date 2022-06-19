@@ -7,10 +7,10 @@ Once Docker is installed, run this command on the command prompt:
 2. COMMAND: docker-compose up --build (This will pull up all the necessary images to use (Databases and Kong), and build images out of executable jar files of each microservices (Product and Cart))
 3. Jar files are located on the target folder within each microservices folders.
 
-Once services are done building with docker, we may now access the API documentations using Swagger and the Kong manager via "localhost:8000" - I have defined it's port on docker-compose file.
+Once services are done building with docker, we may now access the API documentations using Swagger and the Kong Gateway manager via "localhost:8000" - I have defined it's port on docker-compose file.
 
 # Kong Gateway
-Upon accessing it, please see attached excel file as well of the Kong Gateway documentation that I have made which contains all the lists of configured Services, Routes, Plugins, and Consumers that I used.
+Upon accessing it via "localhost:8000", please see attached excel file as well of the Kong Gateway documentation that I have made which contains all the lists of configured Services, Routes, Plugins, and Consumers that I used.
 
 To secure all the request prior to proxying, I have considerably used Basic Auth Plugin to identify consumers first, their respective group and control their access.
 
