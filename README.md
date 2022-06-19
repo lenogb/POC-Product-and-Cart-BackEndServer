@@ -1,12 +1,16 @@
 
 # POC- Application
+# Docker
 Docker is use to containerized all the microservices and run each of it as an image through Dockerfile located on each of their respective folders.
 Once Docker is installed, run this command on the command prompt:
 1. Go to the directory where Docker-compose file is located. (It should only be located on the root folder of where the microservice's folders are)
-2. COMMAND: docker-compose up --build (This will pull up all the necessary images to use, and build images out of executable jar files of each microservices)
+2. COMMAND: docker-compose up --build (This will pull up all the necessary images to use (Databases and Kong), and build images out of executable jar files of each microservices (Product and Cart))
 3. Jar files are located on the target folder within each microservices folders.
 
-The Kong Gateway documentation is in the excel file which contain all the lists of configured Services, Routes, Plugins, and Consumers that I used.
+Once services are done building with docker, we may now access the API documentations using Swagger and the Kong manager via "localhost:8000" - I have defined it's port on docker-compose file.
+
+# Kong Gateway
+Upon accessing it, please see attached excel file as well of the Kong Gateway documentation that I have made which contains all the lists of configured Services, Routes, Plugins, and Consumers that I used.
 
 To secure all the request prior to proxying, I have considerably used Basic Auth Plugin to identify consumers first, their respective group and control their access.
 
@@ -19,7 +23,6 @@ Since there is no User Microservice yet to provide user Informations, I created 
 
 1. Product Microservice : http://localhost:8887/api/v1/api-docs.html
 2. Cart-Gateway Microservice : http://localhost:8889/api/v1/api-docs.html
-
 
 
 # EXPOSED ENDPOINTS
@@ -39,6 +42,3 @@ Since there is no User Microservice yet to provide user Informations, I created 
 9. Get all items (GET) - localhost:8000/cart
 10. Remove item from cart (DELETE) - localhost:8000/cart
 11. Check-out (DELETE) - localhost:8000/cart/check-out
-
-Kong is running on port 8000
-
