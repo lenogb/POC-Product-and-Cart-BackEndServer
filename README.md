@@ -15,7 +15,7 @@ Once Docker is installed, run this command on the command prompt (Directory shou
 Once services are done building with docker, we may now access the API documentations using Swagger and the Kong Gateway manager via "localhost:8002".
 
 # Kong Gateway
-Upon accessing it via "localhost:8000", please see attached excel file for the Kong Gateway documentation that I have made which contains all the lists of configured Services, Routes, Plugins, and Consumers that I used.
+Upon accessing it via "localhost:8002", please see attached excel file for the Kong Gateway documentation that I have made which contains all the lists of configured Services, Routes, Plugins, and Consumers that I used.
 
 To secure all the request prior to proxy, I have considerably used Basic Auth Plugin to identify consumers first, their respective group and control their access.
 
