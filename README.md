@@ -12,7 +12,7 @@ Once Docker is installed, run this command on the command prompt (Directory shou
 1. Go to the directory where Docker-compose file is located. (It should only be located on the root folder of where the microservice's folders are)
 2. COMMAND: docker-compose up --build (This will pull up all the necessary images to use (Databases and Kong), and build images out of executable jar files of each microservices.
 
-Once services are done building with docker, we may now access the API documentations using Swagger and the Kong Gateway manager via "localhost:8000".
+Once services are done building with docker, we may now access the API documentations using Swagger and the Kong Gateway manager via "localhost:8002".
 
 # Kong Gateway
 Upon accessing it via "localhost:8000", please see attached excel file for the Kong Gateway documentation that I have made which contains all the lists of configured Services, Routes, Plugins, and Consumers that I used.
